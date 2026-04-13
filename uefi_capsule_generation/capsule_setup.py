@@ -125,8 +125,8 @@ def sync_edk2_linux(edk2_git_repo_sync_url, edk2_dir_path):
 
 def sync_and_build_edk2_linux(edk2_dir_path, c_dir):
 
-    if platform.system() == 'Linux':
-        edk2_get_repo_sync_stats = sync_edk2_linux(edk2_git_repo_sync_url, 
+    if platform.system() in ('Linux', 'Darwin'):
+        edk2_get_repo_sync_stats = sync_edk2_linux(edk2_git_repo_sync_url,
                                                    edk2_dir_path)
         if edk2_get_repo_sync_stats != True:
             return edk2_get_repo_sync_stats
@@ -532,7 +532,7 @@ def Main(args):
         print("Clean build enabled, removing existing edk2 directory")
         force_delete_folder(edk2_sync_local_path_abs)
 
-    if platform.system() == "Linux":
+    if platform.system() in ("Linux", "Darwin"):
         c_dir = os.path.join(edk2_sync_local_path_abs,
                              'BaseTools',
                              'Source',
