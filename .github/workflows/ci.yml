@@ -13,6 +13,8 @@ jobs:
       REP_ROOT: ${{ github.workspace }}
       CERT_PATH: ${{ github.workspace }}/certs
       BOOT_BINARIES_URL: https://qartifactory-edge.qualcomm.com/artifactory/qsc_releases/software/chip/qualcomm_linux-spf-1-0/qualcomm-linux-spf-1-0_test_device_public/r1.0_00116.0/qcm6490-le-1-0/common/build/ufs/bin/QCM6490_bootbinaries.zip
+      # Prevent Git Bash on Windows from mangling /CN=... and /node/path arguments into Windows paths.
+      MSYS_NO_PATHCONV: 1
 
     strategy:
       matrix:
@@ -41,6 +43,13 @@ jobs:
     - name: Install system dependencies (macOS)
       if: runner.os == 'macOS'
       run: brew install dtc
+
+    - name: Install system dependencies (Windows)
+      if: runner.os == 'Windows'
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        install: base-devel mingw-w64-x86_64-gcc
 
     - name: Install qcom-capsule-tool
       working-directory: ${{ github.workspace }}
@@ -153,15 +162,15 @@ jobs:
         qcom-capsule-tool update-json -j config.json -f SYS_FW -b SYSFW_VERSION.bin -pf firmware.fv \
             -p "${CERT_PATH}/QcFMPCert.pem" -x "${CERT_PATH}/QcFMPRoot.pub.pem" -oc "${CERT_PATH}/QcFMPSub.pub.pem" -g 6F25BFD2-A165-468B-980F-AC51A0A45C52
 
-    # GenerateCapsule.py is the edk2 upstream tool downloaded by `qcom-capsule-tool setup`.
-    # capsule_setup.py only builds edk2 on Linux, so these steps are Linux-only.
     - name: Generate capsule file
-      if: runner.os == 'Linux'
+      env:
+        PYTHONPATH: edk2/BaseTools/Source/Python
       run: |
         python3 edk2/BaseTools/Source/Python/Capsule/GenerateCapsule.py \
             -e -j config.json -o capsule_file.cap --capflag PersistAcrossReset -v
 
     - name: Dump capsule information
-      if: runner.os == 'Linux'
+      env:
+        PYTHONPATH: edk2/BaseTools/Source/Python
       run: |
         python3 edk2/BaseTools/Source/Python/Capsule/GenerateCapsule.py --dump-info capsule_file.cap

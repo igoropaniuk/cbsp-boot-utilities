@@ -107,7 +107,9 @@ def _default_edk2_tools_dir():
 
 
 def _tool_path(tools_dir, name):
-    """Return full path to a tool in tools_dir."""
+    """Return full path to a tool in tools_dir, adding .exe on Windows."""
+    if platform.system() == 'Windows' and not name.endswith('.exe'):
+        name = name + '.exe'
     return os.path.join(tools_dir, name)
 
 
@@ -266,14 +268,8 @@ def generate_fv(s_output_file_name, ls_ffs, s_gen_fv, tools_dir=None):
     if tools_dir is None:
         tools_dir = _default_edk2_tools_dir()
 
-    if platform.system() == "Linux":
-
-        sFVCommand = f"{_tool_path(tools_dir, 'GenFv')} -o {s_output_file_name} -i {FV_MAIN_INF_NAME} -v"
-        execute_command_linux(sFVCommand)
-
-    if platform.system() == "Windows":
-        sFVCommand = f"{s_gen_fv} -o {s_output_file_name} -i {FV_MAIN_INF_NAME} -v"
-        execute_command(sFVCommand)
+    sFVCommand = f"{_tool_path(tools_dir, 'GenFv')} -o {s_output_file_name} -i {FV_MAIN_INF_NAME} -v"
+    execute_command_linux(sFVCommand)
 
     
     if not os.path.exists(s_output_file_name):
@@ -540,25 +536,12 @@ def generate_sys_fw_ffs_list(ls_ffs, s_gen_ffs, ls_paths, g_dynamic_var, tools_d
             
             print(f"INFO: Creating ffs file for {raw_fwentry.InputBinary}.")
 
-            #
-            # execute GenFfs in Linux
-            #
-            if platform.system() == "Linux":
-                if tools_dir is None:
-                    tools_dir = _default_edk2_tools_dir()
-                raw_fwentry_FileGuid_uuid_bytes_obj = bytes(raw_fwentry.FileGuid)
-                raw_fwentry_FileGuid_uuid_str = str(uuid.UUID(bytes=raw_fwentry_FileGuid_uuid_bytes_obj))
-                s_command = f"{_tool_path(tools_dir, 'GenFfs')} -o {s_file_name}.ffs -t EFI_FV_FILETYPE_RAW -g {raw_fwentry_FileGuid_uuid_str} -s -v -i {os.path.join(s_dir_path, raw_fwentry.InputBinary)}"
-                execute_command_linux(s_command)
-
-            #
-            # execute GenFfs in Windows
-            #
-            if platform.system() == "Windows":	
-                raw_fwentry_FileGuid_uuid_bytes_obj = bytes(raw_fwentry.FileGuid)
-                raw_fwentry_FileGuid_uuid_str = str(uuid.UUID(bytes=raw_fwentry_FileGuid_uuid_bytes_obj))
-                s_command = f"{s_gen_ffs} -o {s_file_name}.ffs -t EFI_FV_FILETYPE_RAW -g {raw_fwentry_FileGuid_uuid_str} -s -v -i {os.path.join(s_dir_path, raw_fwentry.InputBinary)}"
-                execute_command(s_command)			
+            if tools_dir is None:
+                tools_dir = _default_edk2_tools_dir()
+            raw_fwentry_FileGuid_uuid_bytes_obj = bytes(raw_fwentry.FileGuid)
+            raw_fwentry_FileGuid_uuid_str = str(uuid.UUID(bytes=raw_fwentry_FileGuid_uuid_bytes_obj))
+            s_command = f"{_tool_path(tools_dir, 'GenFfs')} -o {s_file_name}.ffs -t EFI_FV_FILETYPE_RAW -g {raw_fwentry_FileGuid_uuid_str} -s -v -i {os.path.join(s_dir_path, raw_fwentry.InputBinary)}"
+            execute_command_linux(s_command)
                 
             ls_ffs.append(s_file_name + ".ffs")
 
@@ -566,15 +549,10 @@ def generate_sys_fw_ffs_list(ls_ffs, s_gen_ffs, ls_paths, g_dynamic_var, tools_d
         s_guid = FVC_h.GlobalStaticVariable.FILE_GUID_METADATA_GUID.strip('{}')
 
         print(f"INFO: Creating ffs file for {SYS_FW_METADATA_FILE}.")
-        if platform.system() == "Linux":
-            if tools_dir is None:
-                tools_dir = _default_edk2_tools_dir()
-            s_command = f"{_tool_path(tools_dir, 'GenFfs')} -o {s_file_name}.ffs -t EFI_FV_FILETYPE_RAW -g {s_guid} -s -v -i {SYS_FW_METADATA_FILE}"
-            execute_command_linux(s_command)
-
-        if platform.system() == "Windows":
-            s_command = f"{s_gen_ffs} -o {s_file_name}.ffs -t EFI_FV_FILETYPE_RAW -g {s_guid} -s -v -i {SYS_FW_METADATA_FILE}"
-            execute_command(s_command)
+        if tools_dir is None:
+            tools_dir = _default_edk2_tools_dir()
+        s_command = f"{_tool_path(tools_dir, 'GenFfs')} -o {s_file_name}.ffs -t EFI_FV_FILETYPE_RAW -g {s_guid} -s -v -i {SYS_FW_METADATA_FILE}"
+        execute_command_linux(s_command)
         
         ls_ffs.append(s_file_name + ".ffs")
 
@@ -664,10 +642,7 @@ def The_Main(args):
             del args[i:i + 2]
             break
 
-    if platform.system() == "Linux":
-        tools_dir = os.path.join(edk2_path, 'BaseTools', 'Source', 'C', 'bin')
-    elif platform.system() == "Windows":
-        tools_dir = edk2_path
+    tools_dir = os.path.join(edk2_path, 'BaseTools', 'Source', 'C', 'bin')
 
     # fv_type = FV_TYPE.UNKNOWN
 

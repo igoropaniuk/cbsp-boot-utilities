@@ -145,7 +145,7 @@ def GetSysFirmwareInfo(args):
             print('Invalid system firmware version file: {0}'.format(SysBinPath))
             sys.exit(1)
 
-        if platform.system() == "Linux":
+        if platform.system() in ("Linux", "Darwin"):
             # Call SYSFW_VERSION_program to extract the firmware version and lowest
             # supported version
             results = []
