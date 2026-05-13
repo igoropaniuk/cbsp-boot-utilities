@@ -47,7 +47,7 @@ def run_make_command_linux(edk2_dir_path):
         print(f"\n\nDirectory '{edk2_dir_path}' does not exist.\n\n")
         return f"Directory '{edk2_dir_path}' does not exist."
 
-    base_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = os.getcwd()
 
     try:
         os.chdir(edk2_dir_path)
@@ -69,7 +69,7 @@ def init_brotli_submodule(edk2_dir_path):
         print(f"\n\nDirectory '{edk2_dir_path}' does not exist\n\n")
         return f"Directory '{edk2_dir_path}' does not exist"
 
-    base_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = os.getcwd()
     os.chdir(edk2_dir_path)
 
     try:
@@ -517,7 +517,7 @@ def print_stats(
 def Main(args):
 
     if platform.system() in ("Linux", "Darwin"):
-        base_dir_abs = os.path.dirname(os.path.abspath(__file__))
+        base_dir_abs = os.getcwd()
         generate_capsule_py_file_path_abs = os.path.join(
             base_dir_abs, "GenerateCapsule.py"
         )
@@ -563,7 +563,7 @@ def Main(args):
         )
 
     if platform.system() == "Windows":
-        base_dir_abs = os.path.dirname(os.path.abspath(__file__))
+        base_dir_abs = os.getcwd()
         generate_capsule_py_file_path_abs = os.path.join(
             base_dir_abs, "GenerateCapsule.py"
         )
