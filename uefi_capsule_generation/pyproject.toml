@@ -1,0 +1,25 @@
+[build-system]
+requires = ["poetry-core>=1.5"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "qcom-capsule-tool"
+version = "1.0.0"
+description = "Qualcomm capsule generation tools for UEFI firmware updates"
+license = "BSD-3-Clause-Clear"
+authors = ["Qualcomm Innovation Center <noreply@qualcomm.com>"]
+packages = [{ include = "qcom_capsule_tool", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+validators = "*"
+requests = "*"
+pyelftools = "*"
+pylibfdt = "*"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "*"
+mypy = "*"
+
+[tool.poetry.scripts]
+qcom-capsule-tool = "qcom_capsule_tool.cli:main"
