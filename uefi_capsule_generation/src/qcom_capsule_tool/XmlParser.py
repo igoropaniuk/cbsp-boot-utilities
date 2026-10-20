@@ -109,6 +109,8 @@ def xml_to_dict(ele):
 def parse_input_xml(s_xml_file, s_breaking_change_number, g_dynamic_var):
 
     try:
+        # Safe with the stdlib parser: see the expat version guard at the top.
+        # nosemgrep: python.lang.security.use-defused-xml-parse.use-defused-xml-parse
         tree = ET.parse(s_xml_file)
         root = tree.getroot()
 
