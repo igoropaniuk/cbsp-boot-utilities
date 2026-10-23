@@ -1,0 +1,15 @@
+# Code owners are automatically requested for review on pull requests
+# that touch the matching paths. The last matching pattern wins, and
+# every owner must have write access to the repository.
+
+# Default owners for anything not matched below
+*                           @quicthogaru @RakeshVakulaabharanam
+
+# GitHub Actions workflows and CI documentation
+/.github/                   @igoropaniuk @quicthogaru
+
+# UEFI capsule generation tooling (qcom-capsule-tool)
+/uefi_capsule_generation/   @igoropaniuk @GuanquanTian @quicthogaru
+
+# UEFI secure boot tooling
+/uefi_sec/                  @chirag-jn @RakeshVakulaabharanam
